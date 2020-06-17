@@ -31,11 +31,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -207,7 +210,7 @@ public class MainActivity extends FragmentActivity implements
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                     startActivity(intent);
                 }
-                return true;
+                return false;
             }
         });
 
@@ -353,7 +356,10 @@ public class MainActivity extends FragmentActivity implements
             }
             Log.d("LM", "解压完成，加载html");
 //        }
-        mWebView.loadUrl("file:///data/data/" + getPackageName() + "/upzip/dist/index.html");
+
+        mWebView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+//        mWebView.loadUrl("file:///data/data/" + getPackageName() + "/upzip/dist/index.html");
+        mWebView.loadUrl("http://k56.kaidongyuan.com/CYSCMAPP/fds");
         Tools.setAppLastTimeVersion(mContext);
         lastVersion = Tools.getAppLastTimeVersion(mContext);
         Log.d("LM", "上次启动记录的版本号已设置为: " + lastVersion);
@@ -375,6 +381,21 @@ public class MainActivity extends FragmentActivity implements
 
         // 注册微信登录
         registToWX();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //清空所有Cookie
+        CookieSyncManager.createInstance(mContext);  //Create a singleton CookieSyncManager within a context
+        CookieManager cookieManager = CookieManager.getInstance(); // the singleton CookieManager instance
+        cookieManager.removeAllCookie();// Removes all cookies.
+        CookieSyncManager.getInstance().sync(); // forces sync manager to sync now
+
+        mWebView.setWebChromeClient(null);
+        mWebView.setWebViewClient(null);
+        mWebView.getSettings().setJavaScriptEnabled(false);
+        mWebView.clearCache(true);
     }
 
     private void registToWX() {
