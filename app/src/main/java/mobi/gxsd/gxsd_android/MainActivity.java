@@ -1059,6 +1059,28 @@ public class MainActivity extends FragmentActivity implements
                 p.edit().putString("user_info", inputName).commit();
                 Log.i("LM","接收 | 用户信息");
             }
+            // 存储文章阅读时长
+            else if(exceName.equals("文章阅读时长")) {
+
+                SharedPreferences p = mContext.getSharedPreferences("w_UserInfo", Context.MODE_MULTI_PROCESS);
+                p.edit().putString("read_accum_time", inputName).commit();
+                Log.i("LM","接收 | 文章阅读时长");
+            }
+            // 取文_章阅读时长
+            else if(exceName.equals("取文_章阅读时长")) {
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        SharedPreferences p = mContext.getSharedPreferences("w_UserInfo", MODE_MULTI_PROCESS);
+                        String accum_time = p.getString("read_accum_time", "");
+                        String url = "javascript:LM_AndroidIOSToVue_read_accum_time('" + accum_time + "')";
+                        MainActivity.mWebView.loadUrl(url);
+                        Log.i("LM", "发送 | 取文_章阅读时长");
+                    }
+                });
+            }
         }
 
         @JavascriptInterface
