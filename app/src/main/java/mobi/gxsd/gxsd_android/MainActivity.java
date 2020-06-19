@@ -41,6 +41,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.allenliu.versionchecklib.v2.AllenVersionChecker;
@@ -150,6 +151,8 @@ public class MainActivity extends FragmentActivity implements
     // 点击物理返回键的次数
     private int return_key_times = 0;
 
+    TextView start_textView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,6 +166,24 @@ public class MainActivity extends FragmentActivity implements
 
         mContext = this;
         Log.d("LM", "程序启动");
+
+        start_textView = (TextView) findViewById(R.id.textView5);
+        new Thread() {
+            public void run() {
+                try {
+                    sleep(7000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        start_textView.setVisibility(View.GONE);
+                    }
+                });
+            }
+        }.start();
 
         try {
             mAppVersion = getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0).versionName;
