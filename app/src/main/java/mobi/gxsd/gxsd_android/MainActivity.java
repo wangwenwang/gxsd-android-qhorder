@@ -984,7 +984,7 @@ public class MainActivity extends FragmentActivity implements
                         MainActivity.mWebView.loadUrl(url);
                         Log.d("LM", url);
 
-                        url = "javascript:VersionShow('" + "版本:" + Tools.getVerName(mContext) + "')";
+                        url = "javascript:VersionShow('" + Tools.getVerName(mContext) + "')";
                         MainActivity.mWebView.loadUrl(url);
                         Log.d("LM", url);
 
