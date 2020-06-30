@@ -15,6 +15,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -66,6 +67,9 @@ import mobi.gxsd.gxsd_android.Tools.Tools;
 import mobi.gxsd.gxsd_android.print.PrintActivity;
 import mobi.gxsd.gxsd_android.track.OrderTrackActivity;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.opensdk.modelmsg.WXImageObject;
+import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
@@ -74,6 +78,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -425,7 +430,7 @@ public class MainActivity extends FragmentActivity implements
 
         mWebView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
 //        mWebView.loadUrl("file:///data/data/" + getPackageName() + "/upzip/dist/index.html");
-        mWebView.loadUrl("https://tms.kaidongyuan.com/fds");
+        mWebView.loadUrl("http://k56.kaidongyuan.com/CYSCMAPP/fds");
         Tools.setAppLastTimeVersion(mContext);
         lastVersion = Tools.getAppLastTimeVersion(mContext);
         Log.d("LM", "上次启动记录的版本号已设置为: " + lastVersion);
@@ -462,6 +467,48 @@ public class MainActivity extends FragmentActivity implements
         mWebView.setWebViewClient(null);
         mWebView.getSettings().setJavaScriptEnabled(false);
         mWebView.clearCache(true);
+    }
+
+    public void WXsharePic(String transaction, final boolean isSession, Bitmap bitmap) {
+        //初始化WXImageObject和WXMediaMessage对象
+        WXImageObject imageObject = new WXImageObject(bitmap);
+        WXMediaMessage msg = new WXMediaMessage();
+        msg.mediaObject = imageObject;
+        //设置缩略图
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+        bitmap.recycle();
+        msg.thumbData = this.getBitmapByte(scaledBitmap);
+        //构造一个Req
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = transaction + Long.toString(System.currentTimeMillis());
+        req.message = msg;
+        //表示发送给朋友圈  WXSceneTimeline  表示发送给朋友  WXSceneSession
+        req.scene = isSession ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
+        //调用api接口发送数据到微信
+        mWxApi.sendReq(req);
+    }
+
+    public static Bitmap takeScreenShot(Activity activity) {
+        // View是你需要截图的View
+        View view = activity.getWindow().getDecorView();
+        view.setDrawingCacheEnabled(true);
+        view.buildDrawingCache();
+        Bitmap b1= view.getDrawingCache();// 获取状态栏高度
+        Rect frame = new Rect();
+        activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
+        int statusBarHeight = frame.top;// 获取屏幕长和高
+        int width = activity.getWindowManager().getDefaultDisplay().getWidth();
+        int height =  activity.getWindowManager().getDefaultDisplay()
+                .getHeight();// 去掉标题栏
+        Bitmap b = Bitmap.createBitmap(b1, 0, statusBarHeight, width, height
+                - statusBarHeight);view.destroyDrawingCache();
+        return b;
+    }
+
+    public byte[] getBitmapByte(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        return baos.toByteArray();
     }
 
     private void registToWX() {
@@ -1144,6 +1191,28 @@ public class MainActivity extends FragmentActivity implements
                         String url = "javascript:LM_AndroidIOSToVue_read_accum_time('" + accum_time + "')";
                         MainActivity.mWebView.loadUrl(url);
                         Log.i("LM", "发送 | 取文_章阅读时长");
+                    }
+                });
+            }
+            // 分享检测成绩-聊天界面
+            else if(exceName.equals("分享检测成绩-聊天界面")) {
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        WXsharePic("fd", true, takeScreenShot(MainActivity.this));
+                    }
+                });
+            }
+            // 分享检测成绩-朋友圈
+            else if(exceName.equals("分享检测成绩-朋友圈")) {
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        WXsharePic("fd", false, takeScreenShot(MainActivity.this));
                     }
                 });
             }
