@@ -25,8 +25,8 @@ android {
         applicationId "mobi.gxsd.gxsd_android"
         minSdkVersion 17
         targetSdkVersion 26
-        versionCode 11
-        versionName "1.0.3"
+        versionCode 12
+        versionName "1.0.4"
         testInstrumentationRunner "android.support.tete = \"wechat_sdk_tst.runner.AndroidJUnitRunner"
     }
     buildTypes {
