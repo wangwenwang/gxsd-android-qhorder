@@ -430,7 +430,7 @@ public class MainActivity extends FragmentActivity implements
 
         mWebView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
 //        mWebView.loadUrl("file:///data/data/" + getPackageName() + "/upzip/dist/index.html");
-        mWebView.loadUrl("http://k56.kaidongyuan.com/CYSCMAPP/fds");
+        mWebView.loadUrl("https://gxsd.mobi/gxsdapp");
         Tools.setAppLastTimeVersion(mContext);
         lastVersion = Tools.getAppLastTimeVersion(mContext);
         Log.d("LM", "上次启动记录的版本号已设置为: " + lastVersion);
